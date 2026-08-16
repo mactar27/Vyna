@@ -75,7 +75,7 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="border-b px-6 py-5 text-left">
-                  <SheetTitle className="font-serif text-2xl font-medium tracking-tight">
+                  <SheetTitle className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
                     Vyna
                   </SheetTitle>
                 </SheetHeader>
@@ -103,7 +103,7 @@ export function SiteHeader() {
             </Sheet>
 
             <Link href="/" className="flex items-center gap-2">
-              <span className="font-serif text-2xl font-medium tracking-tight">
+              <span className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
                 Vyna
               </span>
             </Link>

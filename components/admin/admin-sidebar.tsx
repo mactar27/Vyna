@@ -23,7 +23,7 @@ export function AdminSidebar() {
   return (
     <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-64 flex-col border-r bg-background md:flex">
       <div className="flex h-14 items-center border-b px-6">
-        <Link href="/" className="font-serif text-2xl font-medium tracking-tight text-foreground">
+        <Link href="/" className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase text-foreground">
           Vyna
         </Link>
       </div>

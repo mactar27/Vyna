@@ -14,7 +14,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-1">
-            <span className="font-serif text-2xl font-medium tracking-tight">
+            <span className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
               Vyna
             </span>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
