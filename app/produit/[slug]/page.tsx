@@ -5,6 +5,7 @@ import { getProduct } from '@/lib/products'
 import { formatPrice } from '@/lib/format'
 import { ProductGallery } from '@/components/product/product-gallery'
 import { AddToCartForm } from '@/components/product/add-to-cart-form'
+import { ReviewForm } from '@/components/product/review-form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 
@@ -189,29 +190,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </TabsContent>
             
             <TabsContent value="avis" className="pt-6">
-              {product.reviews.length > 0 ? (
-                <div className="flex flex-col gap-6">
-                  {product.reviews.map((review, idx) => (
-                    <div key={idx} className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">{review.author}</span>
-                        <span className="text-sm text-muted-foreground">— {new Date(review.date).toLocaleDateString('fr-FR')}</span>
-                      </div>
-                      <div className="flex items-center gap-0.5 text-amber-500">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-3 w-3 ${i < review.rating ? 'fill-current' : 'fill-muted text-muted-foreground'}`}
-                          />
-                        ))}
-                      </div>
-                      <p className="text-muted-foreground">{review.text}</p>
+              <div className="grid gap-12 md:grid-cols-2">
+                <div>
+                  <h3 className="font-serif text-xl font-medium mb-6">Avis clients ({product.reviews.filter(r => r.status === 'PUBLISHED').length})</h3>
+                  {product.reviews.filter(r => r.status === 'PUBLISHED').length > 0 ? (
+                    <div className="flex flex-col gap-6">
+                      {product.reviews.filter(r => r.status === 'PUBLISHED').map((review, idx) => (
+                        <div key={idx} className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">{review.author}</span>
+                            <span className="text-sm text-muted-foreground">— {new Date(review.date).toLocaleDateString('fr-FR')}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5 text-amber-500">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${i < review.rating ? 'fill-current' : 'fill-muted text-muted-foreground'}`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-muted-foreground">{review.text}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <p className="text-muted-foreground">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+                  )}
                 </div>
-              ) : (
-                <p className="text-muted-foreground">Aucun avis pour le moment.</p>
-              )}
+                <div>
+                  <ReviewForm productId={product.id} />
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
 

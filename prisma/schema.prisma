@@ -93,6 +93,7 @@ model Review {
   rating    Int
   text      String   @db.Text
   date      DateTime
+  status    String   @default("PENDING") // "PENDING", "PUBLISHED", "REJECTED"
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
