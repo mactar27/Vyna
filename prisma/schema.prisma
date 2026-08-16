@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ---------------------------------------------------------------------------
+// Categories
+// ---------------------------------------------------------------------------
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  tagline  String
+  image    String
+  products Product[]
+
+  @@map("categories")
+}
+
+// ---------------------------------------------------------------------------
+// Products
+// ---------------------------------------------------------------------------
+
+model Product {
+  id               String             @id @default(cuid())
+  slug             String             @unique
+  name             String
+  categoryId       String
+  category         Category           @relation(fields: [categoryId], references: [id])
+  price            Int
+  oldPrice         Int?
+  isNew            Boolean            @default(false)
+  inStock          Boolean            @default(true)
+  stock            Int                @default(0)
+  shortDescription String             @db.Text
+  description      String             @db.Text
+  images           ProductImage[]
+  informations     ProductInfo[]
+  variants         ProductVariant?
+  reviews          Review[]
+  orderItems       OrderItem[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  position  Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model ProductInfo {
+  id        String  @id @default(cuid())
+  value     String
+  position  Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_infos")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  label     String
+  options   String   @db.Text // stored as JSON array
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+// ---------------------------------------------------------------------------
+// Reviews
+// ---------------------------------------------------------------------------
+
+model Review {
+  id        String   @id @default(cuid())
+  author    String
+  rating    Int
+  text      String   @db.Text
+  date      DateTime
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+// ---------------------------------------------------------------------------
+// Orders (for Admin)
+// ---------------------------------------------------------------------------
+
+model Order {
+  id          String      @id @default(cuid())
+  status      OrderStatus @default(PENDING)
+  firstName   String
+  lastName    String
+  email       String
+  phone       String
+  country     String
+  city        String
+  address     String
+  complement  String?
+  items       OrderItem[]
+  subtotal    Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  price     Int
+  quantity  Int
+  variant   String?
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}

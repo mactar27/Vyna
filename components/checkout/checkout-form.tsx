@@ -1,0 +1,200 @@
+'use client'
+
+import { useState } from 'react'
+import { Check, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { useCart } from '@/lib/cart-context'
+import { formatPrice } from '@/lib/format'
+import { COUNTRIES } from '@/lib/countries'
+
+const steps = [
+  { id: 1, title: 'Informations' },
+  { id: 2, title: 'Livraison' },
+  { id: 3, title: 'Paiement' }
+]
+
+export function CheckoutForm() {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [selectedCountry, setSelectedCountry] = useState('')
+  const { subtotal, items } = useCart()
+
+  const phonePrefix = COUNTRIES.find(c => c.code === selectedCountry)?.prefix || '+...'
+
+  if (items.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-col">
+      {/* Steps indicator */}
+      <div className="mb-10 flex items-center justify-between sm:justify-start sm:gap-4 text-sm">
+        {steps.map((step, idx) => (
+          <div key={step.id} className="flex items-center gap-2">
+            <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
+              step.id < currentStep 
+                ? 'bg-primary text-primary-foreground' 
+                : step.id === currentStep 
+                  ? 'bg-foreground text-background' 
+                  : 'bg-secondary text-muted-foreground'
+            }`}>
+              {step.id < currentStep ? <Check className="h-3.5 w-3.5" /> : step.id}
+            </div>
+            <span className={`hidden sm:inline-block ${
+              step.id <= currentStep ? 'font-medium text-foreground' : 'text-muted-foreground'
+            }`}>
+              {step.title}
+            </span>
+            {idx < steps.length - 1 && (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+        <div className="flex-1">
+          {currentStep === 1 && (
+            <div className="flex flex-col gap-6">
+              <h3 className="font-medium">Informations personnelles</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Prénom</Label>
+                  <Input id="firstName" placeholder="Votre prénom" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Nom complet</Label>
+                  <Input id="lastName" placeholder="Votre nom" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="votre@email.com" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="phone">Téléphone</Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center rounded-l-md border border-input border-r-0 bg-muted/50 px-3 text-sm text-muted-foreground">
+                      {phonePrefix}
+                    </span>
+                    <Input id="phone" type="tel" className="rounded-l-none" placeholder="6 00 00 00 00" />
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="mt-4 font-medium">Adresse</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="country">Pays</Label>
+                  <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                    <SelectTrigger id="country">
+                      <SelectValue placeholder="Sélectionnez un pays..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Ville</Label>
+                  <Input id="city" placeholder="Votre ville" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="zip">Code postal</Label>
+                  <Input id="zip" placeholder="Code postal" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="address">Adresse complète</Label>
+                  <Input id="address" placeholder="N° et nom de rue" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="complement">Informations complémentaires (facultatif)</Label>
+                  <Input id="complement" placeholder="Bâtiment, étage, interphone..." />
+                </div>
+              </div>
+
+              <Button 
+                size="lg" 
+                className="mt-4 w-full sm:w-auto sm:self-start"
+                onClick={() => setCurrentStep(2)}
+              >
+                Continuer vers la livraison
+              </Button>
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div className="flex flex-col gap-6">
+              <h3 className="font-medium">Méthode de livraison</h3>
+              <div className="flex flex-col gap-4 rounded-lg border p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full border border-primary">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    </div>
+                    <span>Livraison standard</span>
+                  </div>
+                  <span className="font-medium">Gratuit</span>
+                </div>
+                <p className="pl-7 text-sm text-muted-foreground">3 à 5 jours ouvrés.</p>
+              </div>
+
+              <div className="mt-4 flex gap-4">
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>Retour</Button>
+                <Button onClick={() => setCurrentStep(3)}>Continuer vers le paiement</Button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="flex flex-col gap-6">
+              <h3 className="font-medium">Paiement sécurisé</h3>
+              <div className="rounded-lg border p-8 text-center text-muted-foreground">
+                <p>Intégration Stripe / Paiement à venir.</p>
+              </div>
+              
+              <div className="mt-4 flex gap-4">
+                <Button variant="outline" onClick={() => setCurrentStep(2)}>Retour</Button>
+                <Button className="w-full sm:w-auto">Confirmer la commande</Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Mini-summary on the right */}
+        <div className="hidden w-80 shrink-0 lg:block">
+          <div className="sticky top-24 rounded-2xl border bg-card p-6">
+            <h3 className="mb-4 font-medium">Votre commande</h3>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Sous-total</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Livraison</span>
+                <span>{currentStep > 1 ? 'Gratuit' : '—'}</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex items-center justify-between font-medium">
+                <span>Total</span>
+                <span className="text-lg">{formatPrice(subtotal)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
