@@ -86,3 +86,19 @@ export async function deleteReview(reviewId: string) {
   }
 }
 
+export async function updateOrderStatus(orderId: string, status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED') {
+  try {
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { status }
+    })
+    
+    revalidatePath('/admin/commandes')
+    revalidatePath(`/admin/commandes/${orderId}`)
+    
+    return { success: true }
+  } catch (err) {
+    console.error('Error updating order status:', err)
+    return { error: 'Erreur lors de la mise à jour du statut de la commande.' }
+  }
+}

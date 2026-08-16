@@ -133,6 +133,7 @@ model OrderItem {
   price     Int
   quantity  Int
   variant   String?
+  image     String?
 
   @@map("order_items")
 }
@@ -143,4 +144,70 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+// ---------------------------------------------------------------------------
+// Promotions
+// ---------------------------------------------------------------------------
+
+model Promotion {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  description   String?
+  discountType  String    // "PERCENTAGE" or "FIXED"
+  discountValue Int
+  isActive      Boolean   @default(true)
+  startDate     DateTime?
+  endDate       DateTime?
+  usageLimit    Int?
+  usageCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("promotions")
+}
+
+// ---------------------------------------------------------------------------
+// Shipping Rules
+// ---------------------------------------------------------------------------
+
+model ShippingRule {
+  id          String   @id @default(cuid())
+  name        String
+  zone        String   // e.g., "FR", "EU", "INTL"
+  price       Int
+  minOrderVal Int?     // Minimum order value for this rule to apply (e.g. free shipping over 100)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("shipping_rules")
+}
+
+// ---------------------------------------------------------------------------
+// Static Pages
+// ---------------------------------------------------------------------------
+
+model Page {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String   @db.Text
+  isPublished Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pages")
+}
+
+// ---------------------------------------------------------------------------
+// Global Settings
+// ---------------------------------------------------------------------------
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("settings")
 }

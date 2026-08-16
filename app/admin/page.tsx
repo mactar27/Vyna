@@ -1,131 +1,96 @@
-import { Metadata } from 'next'
-import { AdminSidebar } from '@/components/admin/admin-sidebar'
-import { Button } from '@/components/ui/button'
-import { formatPrice } from '@/lib/format'
+import { prisma } from '@/lib/db'
+import { DashboardChart } from '@/components/admin/dashboard-chart'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ShoppingBag, CreditCard, MessageSquare, Package } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'Tableau de bord Admin | Vyna',
-}
+export const dynamic = 'force-dynamic'
 
-const stats = [
-  { label: 'Ventes totales', value: '2 450 000 FCFA', trend: '+18% ce mois' },
-  { label: 'Commandes', value: '124', trend: '+8% ce mois' },
-  { label: 'Clients', value: '312', trend: '+15% ce mois' },
-  { label: 'Produits', value: '86', trend: '+3% ce mois' },
-]
+export default async function AdminDashboardPage() {
+  // Récupérer les stats clés
+  const totalOrders = await prisma.order.count()
+  
+  const allOrders = await prisma.order.findMany({
+    select: { subtotal: true, createdAt: true }
+  })
+  
+  const totalRevenue = allOrders.reduce((acc, order) => acc + order.subtotal, 0)
+  
+  const pendingReviews = await prisma.review.count({
+    where: { status: 'PENDING' }
+  })
+  
+  const totalProducts = await prisma.product.count()
 
-const recentOrders = [
-  { id: '#1024', date: '12 mai 2026', total: 26500, status: 'Livrée', customer: 'Awa D.' },
-  { id: '#1023', date: '12 mai 2026', total: 18000, status: 'En cours', customer: 'Fatou N.' },
-  { id: '#1022', date: '11 mai 2026', total: 9500, status: 'Expédiée', customer: 'Oumar T.' },
-  { id: '#1021', date: '11 mai 2026', total: 22000, status: 'Livrée', customer: 'Sophie M.' },
-]
+  // Construire les données du graphique (7 derniers jours)
+  const last7Days = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (6 - i))
+    return d.toISOString().split('T')[0]
+  })
 
-const recentProducts = [
-  { name: 'Mascara Volume', stock: 'En stock', price: 8500, image: '/images/products/mascara-volume.png' },
-  { name: 'Bracelet Élégance', stock: 'En stock', price: 10000, image: '/images/products/bracelet-elegance.png' },
-  { name: 'Huile de soin', stock: 'En stock', price: 9000, image: '/images/products/huile-de-soin.png' },
-  { name: 'Savon Noir', stock: 'En stock', price: 7500, image: '/images/products/savon-noir.png' },
-]
+  const chartData = last7Days.map(dateStr => {
+    const dayOrders = allOrders.filter(o => o.createdAt.toISOString().split('T')[0] === dateStr)
+    const dayRevenue = dayOrders.reduce((acc, o) => acc + o.subtotal, 0)
+    return {
+      date: new Date(dateStr).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
+      ventes: dayRevenue
+    }
+  })
 
-export default function AdminDashboardPage() {
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar />
+    <div className="p-8">
+      <h1 className="font-serif text-3xl font-medium mb-8">Tableau de bord</h1>
       
-      <main className="flex-1 md:pl-64">
-        <div className="flex h-16 items-center justify-between border-b px-8">
-          <h1 className="font-serif text-2xl font-medium">Tableau de bord</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Admin</span>
-            <div className="h-8 w-8 rounded-full bg-secondary" />
-          </div>
-        </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Revenus totaux</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalRevenue} €</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Commandes</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+{totalOrders}</div>
+          </CardContent>
+        </Card>
 
-        <div className="p-8">
-          {/* Stats */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="rounded-xl border bg-card p-6 shadow-sm">
-                <span className="text-sm font-medium text-muted-foreground">{stat.label}</span>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-bold">{stat.value}</span>
-                </div>
-                <span className="mt-1 text-xs text-green-500">{stat.trend}</span>
-              </div>
-            ))}
-          </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avis en attente</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingReviews}</div>
+          </CardContent>
+        </Card>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
-            {/* Commandes récentes */}
-            <div className="rounded-xl border bg-card shadow-sm">
-              <div className="flex items-center justify-between border-b p-6">
-                <h2 className="font-medium">Commandes récentes</h2>
-                <select className="rounded-md border bg-transparent px-2 py-1 text-sm">
-                  <option>30 derniers jours</option>
-                  <option>7 derniers jours</option>
-                </select>
-              </div>
-              <div className="p-0">
-                <table className="w-full text-left text-sm">
-                  <thead className="border-b bg-muted/50">
-                    <tr>
-                      <th className="p-4 font-medium text-muted-foreground">Commande</th>
-                      <th className="p-4 font-medium text-muted-foreground">Date</th>
-                      <th className="p-4 font-medium text-muted-foreground">Client</th>
-                      <th className="p-4 font-medium text-muted-foreground">Total</th>
-                      <th className="p-4 font-medium text-muted-foreground">Statut</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order, i) => (
-                      <tr key={i} className="border-b last:border-0 hover:bg-muted/50">
-                        <td className="p-4 font-medium">{order.id}</td>
-                        <td className="p-4 text-muted-foreground">{order.date}</td>
-                        <td className="p-4 text-muted-foreground">{order.customer}</td>
-                        <td className="p-4 tabular-nums">{formatPrice(order.total)}</td>
-                        <td className="p-4">
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                            order.status === 'Livrée' ? 'bg-green-500/10 text-green-500' :
-                            order.status === 'En cours' ? 'bg-yellow-500/10 text-yellow-500' :
-                            'bg-blue-500/10 text-blue-500'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Produits actifs</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalProducts}</div>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Produits récents */}
-            <div className="rounded-xl border bg-card shadow-sm">
-              <div className="flex items-center justify-between border-b p-6">
-                <h2 className="font-medium">Produits récents</h2>
-                <Button size="sm" variant="outline">Ajouter un produit</Button>
-              </div>
-              <div className="flex flex-col gap-4 p-6">
-                {recentProducts.map((product, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 overflow-hidden rounded-md bg-secondary">
-                        <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">{product.name}</span>
-                        <span className="text-xs text-muted-foreground">{formatPrice(product.price)}</span>
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{product.stock}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+      <Card>
+        <CardHeader>
+          <CardTitle>Évolution des ventes (7 derniers jours)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DashboardChart data={chartData} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
