@@ -3,6 +3,9 @@
 import { searchProducts, getCategories } from '@/lib/products'
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function searchProductsAction(query: string) {
   return searchProducts(query)
@@ -233,7 +236,7 @@ export async function createOrder(data: any) {
   try {
     const { items, ...orderData } = data
 
-    await prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         ...orderData,
         items: {
@@ -248,6 +251,25 @@ export async function createOrder(data: any) {
         }
       }
     })
+
+    if (process.env.RESEND_API_KEY) {
+      await resend.emails.send({
+        from: 'Vyna Boutique <onboarding@resend.dev>',
+        to: 'ndiayeamadoumactar3@gmail.com', // To the admin
+        subject: `Nouvelle commande ! - ${order.firstName} ${order.lastName}`,
+        html: `
+          <h1>Nouvelle commande de ${order.firstName} ${order.lastName}</h1>
+          <p><strong>Email :</strong> ${order.email}</p>
+          <p><strong>Téléphone :</strong> ${order.phone}</p>
+          <p><strong>Total :</strong> ${order.subtotal} FCFA</p>
+          <br/>
+          <h2>Détails de livraison</h2>
+          <p>${order.address}<br/>${order.city}, ${order.country}</p>
+          <br/>
+          <p>Connectez-vous à l'administration pour voir les détails de la commande.</p>
+        `
+      })
+    }
 
     revalidatePath('/admin/commandes')
     return { success: true }
