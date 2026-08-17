@@ -255,7 +255,7 @@ export async function createOrder(data: any) {
     if (process.env.RESEND_API_KEY) {
       await resend.emails.send({
         from: 'Vyna Boutique <onboarding@resend.dev>',
-        to: 'ndiayeamadoumactar3@gmail.com', // To the admin
+        to: 'Attoufanemaiga60@gmail.com', // To the admin
         subject: `Nouvelle commande ! - ${order.firstName} ${order.lastName}`,
         html: `
           <h1>Nouvelle commande de ${order.firstName} ${order.lastName}</h1>
