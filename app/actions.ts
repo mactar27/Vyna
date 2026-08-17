@@ -169,8 +169,7 @@ export async function saveProduct(id: string | null, data: any) {
         }
       })
     }
-    revalidatePath('/admin/produits')
-    revalidatePath('/produit/[slug]', 'page')
+    revalidatePath('/', 'layout')
     return { success: true }
   } catch (err) {
     console.error('Error saving product:', err)
