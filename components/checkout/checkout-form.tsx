@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Check, ChevronRight, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,9 +26,11 @@ const steps = [
 ]
 
 export function CheckoutForm() {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedCountry, setSelectedCountry] = useState('')
-  const { subtotal, items } = useCart()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { subtotal, items, clear } = useCart()
 
   const phonePrefix = COUNTRIES.find(c => c.code === selectedCountry)?.prefix || '+...'
 
@@ -166,8 +170,22 @@ export function CheckoutForm() {
               </div>
               
               <div className="mt-4 flex gap-4">
-                <Button variant="outline" onClick={() => setCurrentStep(2)}>Retour</Button>
-                <Button className="w-full sm:w-auto">Confirmer la commande</Button>
+                <Button variant="outline" onClick={() => setCurrentStep(2)} disabled={isSubmitting}>Retour</Button>
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={async () => {
+                    setIsSubmitting(true)
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1500))
+                    clear()
+                    toast.success("Commande confirmée avec succès !")
+                    router.push('/')
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Confirmer la commande
+                </Button>
               </div>
             </div>
           )}
