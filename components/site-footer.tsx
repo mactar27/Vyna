@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -14,9 +15,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-1">
-            <span className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
-              Vyna
-            </span>
+            <Image src="/logo.png" alt="Vyna Logo" width={120} height={40} className="h-9 w-auto object-contain" />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Beauté, accessoires et essentiels sélectionnés avec soin. Une boutique
               pensée pour évoluer avec vous.

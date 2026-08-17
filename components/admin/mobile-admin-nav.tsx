@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, ShoppingBag, Users, Package, Settings, LogOut, MessageSquare, Menu } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -27,8 +28,8 @@ export function MobileAdminNav() {
 
   return (
     <div className="md:hidden border-b bg-background flex items-center justify-between p-4 sticky top-0 z-40">
-      <Link href="/" className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase text-foreground">
-        Vyna
+      <Link href="/" className="inline-flex items-center">
+        <Image src="/logo.png" alt="Vyna Logo" width={100} height={40} className="h-8 w-auto object-contain" />
       </Link>
       
       <Sheet open={open} onOpenChange={setOpen}>

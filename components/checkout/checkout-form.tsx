@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/lib/cart-context'
 import { formatPrice } from '@/lib/format'
 import { COUNTRIES } from '@/lib/countries'
+import { createOrder } from '@/app/actions'
 
 const steps = [
   { id: 1, title: 'Informations' },
@@ -31,6 +32,20 @@ export function CheckoutForm() {
   const [selectedCountry, setSelectedCountry] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { subtotal, items, clear } = useCart()
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    city: '',
+    address: '',
+    complement: '',
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }))
+  }
 
   const phonePrefix = COUNTRIES.find(c => c.code === selectedCountry)?.prefix || '+...'
 
@@ -73,15 +88,15 @@ export function CheckoutForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom</Label>
-                  <Input id="firstName" placeholder="Votre prénom" />
+                  <Input id="firstName" value={formData.firstName} onChange={handleChange} placeholder="Votre prénom" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom complet</Label>
-                  <Input id="lastName" placeholder="Votre nom" />
+                  <Input id="lastName" value={formData.lastName} onChange={handleChange} placeholder="Votre nom" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="votre@email.com" />
+                  <Input id="email" type="email" value={formData.email} onChange={handleChange} placeholder="votre@email.com" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="phone">Téléphone</Label>
@@ -89,7 +104,7 @@ export function CheckoutForm() {
                     <span className="inline-flex items-center rounded-l-md border border-input border-r-0 bg-muted/50 px-3 text-sm text-muted-foreground">
                       {phonePrefix}
                     </span>
-                    <Input id="phone" type="tel" className="rounded-l-none" placeholder="6 00 00 00 00" />
+                    <Input id="phone" type="tel" value={formData.phone} onChange={handleChange} className="rounded-l-none" placeholder="6 00 00 00 00" />
                   </div>
                 </div>
               </div>
@@ -113,19 +128,15 @@ export function CheckoutForm() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">Ville</Label>
-                  <Input id="city" placeholder="Votre ville" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="zip">Code postal</Label>
-                  <Input id="zip" placeholder="Code postal" />
+                  <Input id="city" value={formData.city} onChange={handleChange} placeholder="Votre ville" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="address">Adresse complète</Label>
-                  <Input id="address" placeholder="N° et nom de rue" />
+                  <Input id="address" value={formData.address} onChange={handleChange} placeholder="N° et nom de rue" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="complement">Informations complémentaires (facultatif)</Label>
-                  <Input id="complement" placeholder="Bâtiment, étage, interphone..." />
+                  <Input id="complement" value={formData.complement} onChange={handleChange} placeholder="Bâtiment, étage, interphone..." />
                 </div>
               </div>
 
@@ -175,8 +186,23 @@ export function CheckoutForm() {
                   className="w-full sm:w-auto"
                   onClick={async () => {
                     setIsSubmitting(true)
-                    // Simulate API call
-                    await new Promise(resolve => setTimeout(resolve, 1500))
+                    
+                    const countryName = COUNTRIES.find(c => c.code === selectedCountry)?.name || selectedCountry
+
+                    const orderResult = await createOrder({
+                      ...formData,
+                      country: countryName,
+                      subtotal: subtotal,
+                      items: items
+                    })
+
+                    setIsSubmitting(false)
+
+                    if (orderResult.error) {
+                      toast.error(orderResult.error)
+                      return
+                    }
+
                     clear()
                     toast.success("Commande confirmée avec succès !")
                     router.push('/')

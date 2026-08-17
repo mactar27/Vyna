@@ -207,29 +207,6 @@
     ]
   },
   {
-    "id": "cmsxp4j9c000004l4pqf8h0m5",
-    "slug": "test",
-    "name": "Test",
-    "categoryId": "0922a90b-5854-4315-b987-7a4d5a50b695",
-    "price": 10000,
-    "oldPrice": null,
-    "isNew": true,
-    "inStock": true,
-    "stock": 0,
-    "shortDescription": "hghjvmvbv",
-    "description": "mvmnvmnvmvhjk",
-    "createdAt": "2026-08-17T20:38:21.312Z",
-    "updatedAt": "2026-08-17T21:14:59.372Z",
-    "images": [
-      {
-        "id": "cmsxqfnj3000004lltyg5jbja",
-        "url": "https://utfs.io/f/vkseLKZiUtarTrluHmpvS2ubO8I5ZkMLnm43tsdeUwy6GgVa",
-        "position": 0,
-        "productId": "cmsxp4j9c000004l4pqf8h0m5"
-      }
-    ]
-  },
-  {
     "id": "e572231b-59c7-4b07-bd1d-ad17e91a8a48",
     "slug": "bougie-parfumee",
     "name": "Bougie Parfumée",

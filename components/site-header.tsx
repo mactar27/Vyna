@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Search, ShoppingBag, Menu } from 'lucide-react'
 import {
@@ -12,7 +13,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { ButtonLink } from '@/components/ui/button-link'
 import { cn } from '@/lib/utils'
 import { useCart } from '@/lib/cart-context'
 import { CartDrawer } from '@/components/cart-drawer'
@@ -75,8 +75,8 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="border-b px-6 py-5 text-left">
-                  <SheetTitle className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
-                    Vyna
+                  <SheetTitle className="inline-flex items-center">
+                    <Image src="/logo.png" alt="Vyna Logo" width={100} height={40} className="h-8 w-auto object-contain" />
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col px-3 py-4">
@@ -103,9 +103,7 @@ export function SiteHeader() {
             </Sheet>
 
             <Link href="/" className="flex items-center gap-2">
-              <span className="inline-flex items-center border border-foreground px-2.5 py-1 font-serif text-sm font-semibold tracking-[0.22em] uppercase">
-                Vyna
-              </span>
+              <Image src="/logo.png" alt="Vyna Logo" width={120} height={40} className="h-9 w-auto object-contain" />
             </Link>
           </div>
 
