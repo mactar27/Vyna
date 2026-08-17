@@ -148,7 +148,9 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
               <Label>Catégorie *</Label>
               <Select value={formData.categoryId} onValueChange={(v) => setFormData({...formData, categoryId: v})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une catégorie" />
+                  <SelectValue placeholder="Sélectionner une catégorie">
+                    {categories.find(c => c.id === formData.categoryId)?.name || 'Sélectionner une catégorie'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map(cat => (
