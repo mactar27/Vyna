@@ -228,3 +228,31 @@ export async function saveShippingRule(id: string | null, data: { name: string; 
     return { error: 'Erreur lors de la sauvegarde.' }
   }
 }
+
+export async function createOrder(data: any) {
+  try {
+    const { items, ...orderData } = data
+
+    await prisma.order.create({
+      data: {
+        ...orderData,
+        items: {
+          create: items.map((item: any) => ({
+            productId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            variant: item.variant || null,
+            image: item.image,
+          }))
+        }
+      }
+    })
+
+    revalidatePath('/admin/commandes')
+    return { success: true }
+  } catch (err) {
+    console.error('Error creating order:', err)
+    return { error: 'Erreur lors de la création de la commande.' }
+  }
+}
