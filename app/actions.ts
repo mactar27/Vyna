@@ -102,3 +102,130 @@ export async function updateOrderStatus(orderId: string, status: 'PENDING' | 'CO
     return { error: 'Erreur lors de la mise à jour du statut de la commande.' }
   }
 }
+
+export async function saveCategory(id: string | null, data: { name: string; slug: string; tagline: string; image: string }) {
+  try {
+    if (id) {
+      await prisma.category.update({
+        where: { id },
+        data
+      })
+    } else {
+      await prisma.category.create({
+        data
+      })
+    }
+    revalidatePath('/admin/categories')
+    revalidatePath('/categorie/[slug]', 'page')
+    return { success: true }
+  } catch (err) {
+    console.error('Error saving category:', err)
+    return { error: 'Erreur lors de la sauvegarde de la catégorie.' }
+  }
+}
+
+export async function deleteCategory(id: string) {
+  try {
+    await prisma.category.delete({
+      where: { id }
+    })
+    revalidatePath('/admin/categories')
+    return { success: true }
+  } catch (err) {
+    console.error('Error deleting category:', err)
+    return { error: 'Erreur lors de la suppression de la catégorie.' }
+  }
+}
+
+export async function saveProduct(id: string | null, data: any) {
+  try {
+    const { images, informations, ...productData } = data
+    
+    if (id) {
+      await prisma.product.update({
+        where: { id },
+        data: {
+          ...productData,
+          images: {
+            deleteMany: {},
+            create: images.map((url: string, index: number) => ({ url, position: index }))
+          },
+          informations: {
+            deleteMany: {},
+            create: informations.map((value: string, index: number) => ({ value, position: index }))
+          }
+        }
+      })
+    } else {
+      await prisma.product.create({
+        data: {
+          ...productData,
+          images: {
+            create: images.map((url: string, index: number) => ({ url, position: index }))
+          },
+          informations: {
+            create: informations.map((value: string, index: number) => ({ value, position: index }))
+          }
+        }
+      })
+    }
+    revalidatePath('/admin/produits')
+    revalidatePath('/produit/[slug]', 'page')
+    return { success: true }
+  } catch (err) {
+    console.error('Error saving product:', err)
+    return { error: 'Erreur lors de la sauvegarde du produit.' }
+  }
+}
+
+export async function deleteProduct(id: string) {
+  try {
+    await prisma.product.delete({
+      where: { id }
+    })
+    revalidatePath('/admin/produits')
+    return { success: true }
+  } catch (err) {
+    console.error('Error deleting product:', err)
+    return { error: 'Erreur lors de la suppression du produit.' }
+  }
+}
+
+export async function saveSetting(key: string, value: string) {
+  try {
+    await prisma.setting.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value }
+    })
+    revalidatePath('/admin/parametres')
+    return { success: true }
+  } catch (err) {
+    console.error('Error saving setting:', err)
+    return { error: 'Erreur lors de la sauvegarde.' }
+  }
+}
+
+export async function deleteShippingRule(id: string) {
+  try {
+    await prisma.shippingRule.delete({ where: { id } })
+    revalidatePath('/admin/livraison')
+    return { success: true }
+  } catch (err) {
+    return { error: 'Erreur lors de la suppression.' }
+  }
+}
+
+export async function saveShippingRule(id: string | null, data: { name: string; zone: string; price: number; minOrderVal: number | null }) {
+  try {
+    if (id) {
+      await prisma.shippingRule.update({ where: { id }, data })
+    } else {
+      await prisma.shippingRule.create({ data })
+    }
+    revalidatePath('/admin/livraison')
+    return { success: true }
+  } catch (err) {
+    return { error: 'Erreur lors de la sauvegarde.' }
+  }
+}
