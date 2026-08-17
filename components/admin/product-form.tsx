@@ -12,6 +12,8 @@ import { saveProduct, deleteProduct } from '@/app/actions'
 import { toast } from 'sonner'
 import { Loader2, Trash2, Plus, X } from 'lucide-react'
 
+import { ImageUpload } from '@/components/admin/image-upload'
+
 interface ProductFormProps {
   categories: { id: string, name: string }[]
   initialData?: {
@@ -47,7 +49,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     stock: initialData?.stock || 0,
     shortDescription: initialData?.shortDescription || '',
     description: initialData?.description || '',
-    images: initialData?.images.map(i => i.url) || [''],
+    images: initialData?.images.map(i => i.url) || [],
     informations: initialData?.informations.map(i => i.value) || ['']
   })
 
@@ -62,20 +64,26 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     }))
   }
 
-  const handleArrayChange = (index: number, field: 'images' | 'informations', value: string) => {
+  const handleArrayChange = (index: number, field: 'informations', value: string) => {
     const newArray = [...formData[field]]
     newArray[index] = value
     setFormData({ ...formData, [field]: newArray })
   }
 
-  const addArrayItem = (field: 'images' | 'informations') => {
+  const addArrayItem = (field: 'informations') => {
     setFormData({ ...formData, [field]: [...formData[field], ''] })
   }
 
   const removeArrayItem = (index: number, field: 'images' | 'informations') => {
-    if (formData[field].length === 1) return
     const newArray = formData[field].filter((_, i) => i !== index)
     setFormData({ ...formData, [field]: newArray })
+  }
+
+  const handleImageUploaded = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, url]
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,22 +208,21 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
         {/* Images */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium">Images (URLs)</h2>
-            <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem('images')}>
-              <Plus className="w-4 h-4 mr-2" /> Ajouter une image
-            </Button>
+            <h2 className="text-lg font-medium">Images du produit</h2>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {formData.images.map((img, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <Input value={img} onChange={(e) => handleArrayChange(index, 'images', e.target.value)} placeholder="/images/products/..." />
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem(index, 'images')} disabled={formData.images.length === 1}>
-                  <X className="w-4 h-4" />
-                </Button>
-                {img && <img src={img} alt="preview" className="h-10 w-10 object-cover rounded border" />}
+              <div key={index} className="relative group rounded-md overflow-hidden border aspect-square">
+                <img src={img} alt="preview" className="object-cover w-full h-full" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button type="button" variant="destructive" size="icon" onClick={() => removeArrayItem(index, 'images')}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
+          <ImageUpload onClientUploadComplete={handleImageUploaded} />
         </div>
 
         {/* Informations */}
