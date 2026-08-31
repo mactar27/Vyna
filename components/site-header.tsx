@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Search, ShoppingBag, Menu } from 'lucide-react'
+import { Search, ShoppingBag, Menu, Truck, Heart, Lock } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -21,9 +21,10 @@ import { SearchDialog } from '@/components/search-dialog'
 const navLinks = [
   { href: '/', label: 'Accueil' },
   { href: '/boutique', label: 'Boutique' },
-  { href: '/categorie/beaute', label: 'Beauté' },
-  { href: '/categorie/accessoires', label: 'Accessoires' },
-  { href: '/categorie/nouveautes', label: 'Nouveautés' },
+  { href: '/categorie/beaute', label: 'Catégories' },
+  { href: '/a-propos', label: 'À propos' },
+  { href: '/journal', label: 'Journal' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 export function SiteHeader() {
@@ -45,18 +46,29 @@ export function SiteHeader() {
 
   return (
     <>
-      <div className="bg-primary text-primary-foreground">
-        <p className="mx-auto max-w-7xl px-4 py-2 text-center text-xs tracking-wide">
-          Livraison internationale — commandez directement en ligne
-        </p>
+      <div className="bg-primary text-primary-foreground hidden md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-[11px] tracking-wide">
+          <div className="flex items-center gap-1.5">
+            <Truck className="h-3 w-3" />
+            <span>Livraison disponible à Dakar & Abidjan</span>
+          </div>
+          <div className="flex items-center gap-1.5 font-medium">
+            <span>-10% sur votre première commande</span>
+            <Heart className="h-3 w-3" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span>Paiement sécurisé</span>
+            <Lock className="h-3 w-3" />
+          </div>
+        </div>
       </div>
 
       <header
         className={cn(
           'sticky top-0 z-40 border-b transition-all duration-300',
           scrolled
-            ? 'border-border bg-background/85 backdrop-blur-md'
-            : 'border-transparent bg-background',
+            ? 'border-border bg-background/90 backdrop-blur-md'
+            : 'border-transparent bg-transparent',
         )}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
@@ -103,12 +115,12 @@ export function SiteHeader() {
             </Sheet>
 
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="Vyna Logo" width={120} height={40} className="h-9 w-auto object-contain" />
+              <span className="font-serif text-3xl tracking-widest text-primary">VYNA</span>
             </Link>
           </div>
 
           {/* Center: nav */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 lg:flex">
             {navLinks.map((link) => {
               const active =
                 link.href === '/'
@@ -137,6 +149,7 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="icon"
+              className="text-primary hover:text-primary/80"
               aria-label="Rechercher"
               onClick={() => setSearchOpen(true)}
             >
@@ -146,7 +159,32 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className="relative text-primary hover:text-primary/80 hidden md:flex"
+              aria-label="Mon compte"
+            >
+              <Link href="/compte">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-user"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </Link>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-primary hover:text-primary/80"
               aria-label={`Panier, ${count} article${count > 1 ? 's' : ''}`}
               onClick={() => setOpen(true)}
             >

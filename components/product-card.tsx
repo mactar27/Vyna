@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { ShoppingBag, Heart } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/format'
@@ -30,7 +30,7 @@ export function ProductCard({ product }: { product: Product }) {
     : 0
 
   return (
-    <Link href={`/produit/${product.slug}`} className="group flex flex-col">
+    <Link href={`/produit/${product.slug}`} className="group flex flex-col h-full">
       <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-secondary">
         <Image
           src={product.images[0] || '/placeholder.svg'}
@@ -61,32 +61,37 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
+        {/* Heart Icon (Top Right) */}
         <button
-          onClick={handleAdd}
-          disabled={!product.inStock}
-          aria-label={`Ajouter ${product.name} au panier`}
-          className={cn(
-            'absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground shadow-sm transition-all duration-300',
-            'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0',
-            'hover:bg-primary hover:text-primary-foreground',
-            'disabled:cursor-not-allowed disabled:opacity-0',
-            'md:opacity-0 max-md:opacity-100 max-md:translate-y-0',
-          )}
+          aria-label="Ajouter aux favoris"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/50 text-primary backdrop-blur-sm transition-colors hover:bg-white"
+          onClick={(e) => {
+            e.preventDefault()
+            toast.success('Ajouté aux coups de cœur')
+          }}
         >
-          <Plus className="h-4 w-4" />
+          <Heart className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="mt-3 flex flex-col gap-0.5">
+      <div className="mt-4 flex flex-col gap-1 flex-1">
         <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm tabular-nums">{formatPrice(product.price)}</span>
+          <span className="text-sm font-semibold tabular-nums">{formatPrice(product.price)}</span>
           {product.oldPrice && (
             <span className="text-xs text-muted-foreground line-through tabular-nums">
               {formatPrice(product.oldPrice)}
             </span>
           )}
         </div>
+        
+        <button
+          onClick={handleAdd}
+          disabled={!product.inStock}
+          className="mt-auto flex w-full items-center justify-center rounded-md bg-primary py-2.5 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+        >
+          <ShoppingBag className="h-4 w-4" />
+        </button>
       </div>
     </Link>
   )

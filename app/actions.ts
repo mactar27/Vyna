@@ -278,3 +278,72 @@ export async function createOrder(data: any) {
     return { error: 'Erreur lors de la création de la commande.' }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Articles
+// ---------------------------------------------------------------------------
+
+export async function saveArticle(
+  id: string | null,
+  data: {
+    slug: string
+    title: string
+    excerpt: string
+    content: string
+    category: string
+    readTime: string
+    image: string
+    isPublished: boolean
+  }
+) {
+  try {
+    const payload = {
+      ...data,
+      publishedAt: data.isPublished ? new Date() : null,
+    }
+
+    if (id) {
+      await prisma.article.update({ where: { id }, data: payload })
+    } else {
+      await prisma.article.create({ data: payload })
+    }
+
+    revalidatePath('/admin/articles')
+    revalidatePath('/journal')
+    revalidatePath('/journal/[slug]', 'page')
+    return { success: true }
+  } catch (err) {
+    console.error('Error saving article:', err)
+    return { error: 'Erreur lors de la sauvegarde de l\'article.' }
+  }
+}
+
+export async function deleteArticle(id: string) {
+  try {
+    await prisma.article.delete({ where: { id } })
+    revalidatePath('/admin/articles')
+    revalidatePath('/journal')
+    return { success: true }
+  } catch (err) {
+    console.error('Error deleting article:', err)
+    return { error: 'Erreur lors de la suppression de l\'article.' }
+  }
+}
+
+export async function toggleArticlePublished(id: string, isPublished: boolean) {
+  try {
+    await prisma.article.update({
+      where: { id },
+      data: {
+        isPublished,
+        publishedAt: isPublished ? new Date() : null,
+      },
+    })
+    revalidatePath('/admin/articles')
+    revalidatePath('/journal')
+    revalidatePath('/journal/[slug]', 'page')
+    return { success: true }
+  } catch (err) {
+    return { error: 'Erreur lors de la mise à jour.' }
+  }
+}

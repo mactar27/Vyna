@@ -1,44 +1,46 @@
-import { ShoppingCart, ShieldCheck, Truck, Headphones } from 'lucide-react'
+import { Leaf, Truck, Lock, Heart } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 
 const items = [
   {
-    icon: ShoppingCart,
-    title: 'Commande simple',
-    text: 'Commandez directement en ligne.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Paiement sécurisé',
-    text: 'Vos informations sont protégées.',
+    icon: Leaf,
+    title: 'Ingrédients naturels',
+    text: 'Sélectionnés avec soin',
   },
   {
     icon: Truck,
-    title: 'Livraison',
-    text: 'Expédition selon votre pays.',
+    title: 'Livraison rapide',
+    text: 'Dakar & Abidjan',
   },
   {
-    icon: Headphones,
-    title: 'Support client',
-    text: 'Une assistance quand vous en avez besoin.',
+    icon: Lock,
+    title: 'Paiement sécurisé',
+    text: '100% sécurisé',
+  },
+  {
+    icon: Heart,
+    title: 'Satisfait ou remboursé',
+    text: "14 jours pour changer d'avis",
   },
 ]
 
 export function TrustBar() {
   return (
-    <section className="border-y bg-secondary/50">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-12 lg:grid-cols-4">
-        {items.map((item, i) => (
-          <Reveal key={item.title} delay={i * 70} className="flex flex-col items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent text-accent-foreground">
-              <item.icon className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h3 className="font-sans text-sm font-medium">{item.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
-            </div>
-          </Reveal>
-        ))}
+    <section className="relative z-30 mt-4 mb-16 px-4 md:-mt-16">
+      <div className="mx-auto max-w-6xl rounded-2xl bg-white px-6 py-8 shadow-sm">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 lg:gap-x-12">
+          {items.map((item, i) => (
+            <Reveal key={item.title} delay={i * 70} className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center text-primary">
+                <item.icon className="h-7 w-7 stroke-[1.5]" aria-hidden="true" />
+              </div>
+              <div>
+                <h3 className="font-sans text-sm font-semibold text-primary">{item.title}</h3>
+                <p className="text-xs text-primary/70">{item.text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   )
