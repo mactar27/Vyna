@@ -51,10 +51,18 @@ export default async function JournalPage() {
                 className="group flex flex-col rounded-3xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Cover */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-accent/30 to-primary/20 flex items-center justify-center">
-                  <span className="font-serif text-6xl opacity-30 select-none">✦</span>
+                <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-accent/30 to-primary/20 flex items-center justify-center">
+                  {article.image ? (
+                    <img
+                      src={article.image}
+                      alt={article.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="font-serif text-6xl opacity-30 select-none">✦</span>
+                  )}
                   {article.category && (
-                    <div className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-semibold">
+                    <div className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-semibold z-10">
                       {article.category}
                     </div>
                   )}

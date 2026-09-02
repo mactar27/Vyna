@@ -2,26 +2,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
 import { ArrowRight } from 'lucide-react'
+import { prisma } from '@/lib/db'
 
-const articles = [
-  {
-    title: "5 rituels beauté inspirés de l'océan",
-    image: "/images/blog-1.jpg",
-    href: "/journal/rituels-beaute-ocean",
-  },
-  {
-    title: "Les bienfaits du savon noir",
-    image: "/images/blog-2.jpg",
-    href: "/journal/bienfaits-savon-noir",
-  },
-  {
-    title: "Comment choisir son bracelet ?",
-    image: "/images/blog-3.jpg",
-    href: "/journal/choisir-son-bracelet",
-  },
-]
-
-export function Journal() {
+export async function Journal() {
+  const articles = await prisma.article.findMany({
+    where: { isPublished: true },
+    orderBy: { publishedAt: 'desc' },
+    take: 3,
+  })
   return (
     <section className="bg-secondary/40 py-16 md:py-24 relative overflow-hidden">
       {/* Decorative Stickers */}
@@ -61,16 +49,19 @@ export function Journal() {
             <div className="grid gap-6 sm:grid-cols-3">
               {articles.map((article, i) => (
                 <Reveal key={i} delay={i * 100}>
-                  <Link href={article.href} className="group block">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-secondary mb-4">
-                      <Image
-                        src="/placeholder.svg" // Using placeholder as we don't have the images
-                        alt={article.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                  <Link href={`/journal/${article.slug}`} className="group block">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-secondary mb-4 flex items-center justify-center">
+                      {article.image ? (
+                        <img
+                          src={article.image}
+                          alt={article.title}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <span className="font-serif text-4xl opacity-30 select-none">✦</span>
+                      )}
                       {/* Decorative tape placeholder on image */}
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-white/40 backdrop-blur-md rotate-[-3deg]" />
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-white/40 backdrop-blur-md rotate-[-3deg] z-10" />
                     </div>
                     <h3 className="text-sm font-medium text-primary leading-snug group-hover:text-primary/80">
                       {article.title}
