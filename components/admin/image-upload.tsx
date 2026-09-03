@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import '@uploadthing/react/styles.css'
 
 interface ImageUploadProps {
-  onClientUploadComplete: (url: string) => void
+  onClientUploadComplete: (urls: string[]) => void
   endpoint?: "imageUploader"
 }
 
@@ -15,9 +15,10 @@ export function ImageUpload({ onClientUploadComplete, endpoint = "imageUploader"
       <UploadDropzone
         endpoint={endpoint}
         onClientUploadComplete={(res) => {
-          if (res && res[0]) {
-            onClientUploadComplete(res[0].url)
-            toast.success('Image ajoutée avec succès')
+          if (res && res.length > 0) {
+            const urls = res.map(r => r.url)
+            onClientUploadComplete(urls)
+            toast.success(`${urls.length} image(s) ajoutée(s)`)
           }
         }}
         onUploadError={(error: Error) => {

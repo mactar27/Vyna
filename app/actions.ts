@@ -142,13 +142,18 @@ export async function deleteCategory(id: string) {
 
 export async function saveProduct(id: string | null, data: any) {
   try {
-    const { images, informations, ...productData } = data
+    const { images, informations, sizes, colors, ...productData } = data
+    
+    const sizesStr = Array.isArray(sizes) && sizes.length > 0 ? JSON.stringify(sizes) : null
+    const colorsStr = Array.isArray(colors) && colors.length > 0 ? JSON.stringify(colors) : null
     
     if (id) {
       await prisma.product.update({
         where: { id },
         data: {
           ...productData,
+          sizes: sizesStr,
+          colors: colorsStr,
           images: {
             deleteMany: {},
             create: images.map((url: string, index: number) => ({ url, position: index }))
@@ -163,6 +168,8 @@ export async function saveProduct(id: string | null, data: any) {
       await prisma.product.create({
         data: {
           ...productData,
+          sizes: sizesStr,
+          colors: colorsStr,
           images: {
             create: images.map((url: string, index: number) => ({ url, position: index }))
           },
@@ -346,4 +353,16 @@ export async function toggleArticlePublished(id: string, isPublished: boolean) {
   } catch (err) {
     return { error: 'Erreur lors de la mise à jour.' }
   }
+}
+
+export async function loginAdmin(formData: FormData) {
+  const password = formData.get('password')
+  if (password === 'faivyyy23') {
+    const { cookies } = await import('next/headers')
+    cookies().set('admin_auth', 'faivyyy23', { secure: true, httpOnly: true, maxAge: 60 * 60 * 24 * 7 })
+    const { redirect } = await import('next/navigation')
+    redirect('/admin')
+  }
+  const { redirect } = await import('next/navigation')
+  redirect('/admin/login?error=1')
 }

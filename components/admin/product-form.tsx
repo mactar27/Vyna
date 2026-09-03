@@ -30,6 +30,8 @@ interface ProductFormProps {
     description: string
     images: { url: string }[]
     informations: { value: string }[]
+    sizes?: string | null
+    colors?: string | null
   }
 }
 
@@ -50,7 +52,9 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     shortDescription: initialData?.shortDescription || '',
     description: initialData?.description || '',
     images: initialData?.images.map(i => i.url) || [],
-    informations: initialData?.informations.map(i => i.value) || ['']
+    informations: initialData?.informations.map(i => i.value) || [''],
+    sizes: initialData?.sizes ? JSON.parse(initialData.sizes) : [],
+    colors: initialData?.colors ? JSON.parse(initialData.colors) : []
   })
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,10 +83,10 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     setFormData({ ...formData, [field]: newArray })
   }
 
-  const handleImageUploaded = (url: string) => {
+  const handleImageUploaded = (urls: string[]) => {
     setFormData(prev => ({
       ...prev,
-      images: [...prev.images, url]
+      images: [...prev.images, ...urls]
     }))
   }
 
@@ -244,6 +248,76 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
                 </Button>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Tailles et Couleurs */}
+        <div>
+          <h2 className="text-lg font-medium mb-4">Tailles & Couleurs (Optionnel, pour Vêtements)</h2>
+          <div className="grid gap-8 md:grid-cols-2 p-5 border rounded-xl bg-secondary/10">
+            
+            {/* Tailles */}
+            <div className="space-y-3">
+              <Label>Tailles (Ex: S, M, L, 38, 40)</Label>
+              <div className="flex gap-2">
+                <Input id="newSize" placeholder="Nouvelle taille..." onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    const val = e.currentTarget.value.trim()
+                    if (val && !formData.sizes.includes(val)) {
+                      setFormData({...formData, sizes: [...formData.sizes, val]})
+                      e.currentTarget.value = ''
+                    }
+                  }
+                }} />
+                <Button type="button" onClick={() => {
+                  const input = document.getElementById('newSize') as HTMLInputElement
+                  const val = input.value.trim()
+                  if (val && !formData.sizes.includes(val)) {
+                    setFormData({...formData, sizes: [...formData.sizes, val]})
+                    input.value = ''
+                  }
+                }} variant="secondary">Ajouter</Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {formData.sizes.map((size: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-1 bg-background border px-3 py-1.5 rounded-md text-sm font-medium shadow-sm">
+                    {size}
+                    <button type="button" onClick={() => setFormData({...formData, sizes: formData.sizes.filter((_, i) => i !== idx)})} className="ml-1 text-muted-foreground hover:text-foreground">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+                {formData.sizes.length === 0 && <span className="text-sm text-muted-foreground italic">Aucune taille</span>}
+              </div>
+            </div>
+
+            {/* Couleurs */}
+            <div className="space-y-3">
+              <Label>Couleurs (Aperçu visuel)</Label>
+              <div className="flex gap-2">
+                <Input id="newColor" type="color" className="w-14 h-10 p-1 cursor-pointer bg-background" defaultValue="#000000" />
+                <Button type="button" onClick={() => {
+                  const input = document.getElementById('newColor') as HTMLInputElement
+                  const val = input.value
+                  if (val && !formData.colors.includes(val)) {
+                    setFormData({...formData, colors: [...formData.colors, val]})
+                  }
+                }} variant="secondary">Ajouter la couleur</Button>
+              </div>
+              <div className="flex flex-wrap gap-3 mt-3">
+                {formData.colors.map((color: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-2 bg-background border border-border/60 px-2 py-1.5 rounded-md shadow-sm">
+                    <div className="w-6 h-6 rounded border shadow-inner" style={{ backgroundColor: color }} />
+                    <button type="button" onClick={() => setFormData({...formData, colors: formData.colors.filter((_, i) => i !== idx)})} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+                {formData.colors.length === 0 && <span className="text-sm text-muted-foreground italic">Aucune couleur</span>}
+              </div>
+            </div>
+            
           </div>
         </div>
 

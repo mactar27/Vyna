@@ -165,8 +165,8 @@ export function ArticleForm({ article }: Props) {
           </div>
         ) : (
           <ImageUpload
-            onClientUploadComplete={(url) =>
-              setForm((prev) => ({ ...prev, image: url }))
+            onClientUploadComplete={(urls) =>
+              setForm((prev) => ({ ...prev, image: urls[0] }))
             }
           />
         )}

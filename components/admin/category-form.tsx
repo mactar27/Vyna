@@ -46,8 +46,11 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
     }))
   }
 
-  const handleImageUploaded = (url: string) => {
-    setFormData(prev => ({ ...prev, image: url }))
+  const handleImageUploaded = (urls: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      image: urls[0]
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

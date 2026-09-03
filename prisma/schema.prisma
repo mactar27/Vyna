@@ -44,6 +44,8 @@ model Product {
   description      String             @db.Text
   images           ProductImage[]
   informations     ProductInfo[]
+  sizes            String?            @db.Text // stored as JSON array of strings
+  colors           String?            @db.Text // stored as JSON array of hex codes
   variants         ProductVariant?
   reviews          Review[]
   orderItems       OrderItem[]

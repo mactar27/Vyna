@@ -52,10 +52,7 @@ export function SiteHeader() {
             <Truck className="h-3 w-3" />
             <span>Livraison disponible à Dakar & Abidjan</span>
           </div>
-          <div className="flex items-center gap-1.5 font-medium">
-            <span>-10% sur votre première commande</span>
-            <Heart className="h-3 w-3" />
-          </div>
+
           <div className="flex items-center gap-1.5">
             <span>Paiement sécurisé</span>
             <Lock className="h-3 w-3" />
