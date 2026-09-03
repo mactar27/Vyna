@@ -1,7 +1,8 @@
 import { loginAdmin } from '@/app/actions'
 import { AlertCircle } from 'lucide-react'
 
-export default function AdminLogin({ searchParams }: { searchParams: { error?: string } }) {
+export default async function AdminLogin({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const resolvedParams = await searchParams;
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-sm rounded-3xl bg-card p-10 shadow-sm border border-border">
@@ -10,7 +11,7 @@ export default function AdminLogin({ searchParams }: { searchParams: { error?: s
           Veuillez entrer le mot de passe pour accéder à l'administration.
         </p>
 
-        {searchParams.error && (
+        {resolvedParams.error && (
           <div className="mb-6 flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-lg">
             <AlertCircle className="h-4 w-4" />
             Mot de passe incorrect
