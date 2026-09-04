@@ -359,7 +359,8 @@ export async function loginAdmin(formData: FormData) {
   const password = formData.get('password')
   if (password === 'faivyyy23') {
     const { cookies } = await import('next/headers')
-    cookies().set('admin_auth', 'faivyyy23', { secure: true, httpOnly: true, maxAge: 60 * 60 * 24 * 7 })
+    const cookieStore = await cookies()
+    cookieStore.set('admin_auth', 'faivyyy23', { secure: true, httpOnly: true, maxAge: 60 * 60 * 24 * 7 })
     const { redirect } = await import('next/navigation')
     redirect('/admin')
   }
