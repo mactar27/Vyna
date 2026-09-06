@@ -21,7 +21,7 @@ import { SearchDialog } from '@/components/search-dialog'
 const navLinks = [
   { href: '/', label: 'Accueil' },
   { href: '/boutique', label: 'Boutique' },
-  { href: '/categorie/beaute', label: 'Catégories' },
+  { href: '/categorie', label: 'Catégories' },
   { href: '/a-propos', label: 'À propos' },
   { href: '/journal', label: 'Journal' },
   { href: '/contact', label: 'Contact' },
