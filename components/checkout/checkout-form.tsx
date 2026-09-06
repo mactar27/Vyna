@@ -2,18 +2,25 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, ChevronRight, Loader2 } from 'lucide-react'
+import { Check, ChevronRight, Loader2, ChevronsUpDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/lib/cart-context'
 import { formatPrice } from '@/lib/format'
@@ -45,6 +52,11 @@ export function CheckoutForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }))
+  }
+
+  const filterCountries = (value: string, search: string) => {
+    const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    return normalize(value).includes(normalize(search)) ? 1 : 0
   }
 
   const phonePrefix = COUNTRIES.find(c => c.code === selectedCountry)?.prefix || '+...'
@@ -113,18 +125,50 @@ export function CheckoutForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="country">Pays</Label>
-                  <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                    <SelectTrigger id="country">
-                      <SelectValue placeholder="Sélectionnez un pays..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COUNTRIES.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between font-normal",
+                          !selectedCountry && "text-muted-foreground"
+                        )}
+                      >
+                        {selectedCountry
+                          ? COUNTRIES.find((country) => country.code === selectedCountry)?.name
+                          : "Sélectionnez un pays..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] sm:w-[400px] p-0" align="start">
+                      <Command filter={filterCountries}>
+                        <CommandInput placeholder="Rechercher un pays..." />
+                        <CommandList>
+                          <CommandEmpty>Aucun pays trouvé.</CommandEmpty>
+                          <CommandGroup>
+                            {COUNTRIES.map((country) => (
+                              <CommandItem
+                                key={country.code}
+                                value={country.name}
+                                onSelect={() => {
+                                  setSelectedCountry(country.code)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCountry === country.code ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {country.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">Ville</Label>
