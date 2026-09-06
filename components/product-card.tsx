@@ -85,6 +85,19 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         
+        {product.colors && product.colors.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {product.colors.map((color, idx) => (
+              <div 
+                key={idx}
+                className="h-3.5 w-3.5 rounded-full border shadow-sm"
+                style={{ backgroundColor: color, borderColor: color === '#ffffff' ? '#e5e7eb' : 'transparent' }}
+                title={color}
+              />
+            ))}
+          </div>
+        )}
+
         <button
           onClick={handleAdd}
           disabled={!product.inStock}

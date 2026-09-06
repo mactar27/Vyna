@@ -33,6 +33,8 @@ export type Product = {
   images: string[]
   variants?: { label: string; options: string[] } | null
   reviews: Review[]
+  colors?: string[]
+  sizes?: string[]
 }
 
 // Fonction de transformation Prisma -> Frontend
@@ -52,6 +54,8 @@ function mapProduct(p: any): Product {
     informations: p.informations.sort((a: any, b: any) => a.position - b.position).map((i: any) => i.value),
     images: p.images.sort((a: any, b: any) => a.position - b.position).map((i: any) => i.url),
     variants: p.variants ? { label: p.variants.label, options: JSON.parse(p.variants.options) } : null,
+    colors: p.colors ? JSON.parse(p.colors) : undefined,
+    sizes: p.sizes ? JSON.parse(p.sizes) : undefined,
     reviews: p.reviews.map((r: any) => ({
       author: r.author,
       rating: r.rating,
