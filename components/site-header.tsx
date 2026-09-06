@@ -47,12 +47,7 @@ export function SiteHeader() {
   return (
     <>
       <div className="bg-primary text-primary-foreground hidden md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-[11px] tracking-wide">
-          <div className="flex items-center gap-1.5">
-            <Truck className="h-3 w-3" />
-            <span>Livraison disponible à Dakar & Abidjan</span>
-          </div>
-
+        <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2 text-[11px] tracking-wide">
           <div className="flex items-center gap-1.5">
             <span>Paiement sécurisé</span>
             <Lock className="h-3 w-3" />
