@@ -13,7 +13,7 @@ interface CategoryPageProps {
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const slug = (await params).slug
+  const slug = decodeURIComponent((await params).slug)
   const categories = await getCategories()
   const category = categories.find(c => c.slug === slug)
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const slug = (await params).slug
+  const slug = decodeURIComponent((await params).slug)
   const categories = await getCategories()
   const category = categories.find(c => c.slug === slug)
 
