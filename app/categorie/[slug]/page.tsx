@@ -15,7 +15,10 @@ interface CategoryPageProps {
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const slug = decodeURIComponent((await params).slug)
   const categories = await getCategories()
-  const category = categories.find(c => c.slug === slug)
+  
+  const normalizedSearchSlug = slug.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '')
+  const category = categories.find(c => c.slug === slug) 
+    || categories.find(c => c.slug.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedSearchSlug)
 
   if (!category) return { title: 'Catégorie introuvable' }
 
@@ -28,13 +31,16 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const slug = decodeURIComponent((await params).slug)
   const categories = await getCategories()
-  const category = categories.find(c => c.slug === slug)
+  
+  const normalizedSearchSlug = slug.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '')
+  const category = categories.find(c => c.slug === slug) 
+    || categories.find(c => c.slug.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedSearchSlug)
 
   if (!category) {
     notFound()
   }
 
-  const categoryProducts = await getProductsByCategory(slug)
+  const categoryProducts = await getProductsByCategory(category.slug)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
