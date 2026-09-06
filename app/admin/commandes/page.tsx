@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Eye } from 'lucide-react'
+import { formatPrice } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export default async function CommandesPage() {
                       {order.status === 'CANCELLED' && <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Annulée</Badge>}
                     </td>
                     <td className="px-6 py-4 font-medium">
-                      {order.subtotal} €
+                      {formatPrice(order.subtotal)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link 

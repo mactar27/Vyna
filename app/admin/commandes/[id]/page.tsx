@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { OrderStatusUpdater } from '@/components/admin/order-status-updater'
 import { Badge } from '@/components/ui/badge'
+import { formatPrice } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,7 +88,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{item.price} €</p>
+                          <p className="font-medium">{formatPrice(item.price)}</p>
                           <p className="text-sm text-muted-foreground">Qté : {item.quantity}</p>
                         </div>
                       </div>
@@ -100,7 +101,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               
               <div className="flex justify-between items-center text-lg font-medium">
                 <span>Total de la commande</span>
-                <span>{order.subtotal} €</span>
+                <span>{formatPrice(order.subtotal)}</span>
               </div>
             </CardContent>
           </Card>
