@@ -8,17 +8,24 @@ import { Reveal } from '@/components/reveal'
 
 export const dynamic = 'force-dynamic'
 
+function normalizeSlug(s: string) {
+  return decodeURIComponent(s)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '') // remove dashes, spaces, everything else
+}
+
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const slug = decodeURIComponent((await params).slug)
+  const slug = (await params).slug
   const categories = await getCategories()
   
-  const normalizedSearchSlug = slug.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '')
-  const category = categories.find(c => c.slug === slug) 
-    || categories.find(c => c.slug.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedSearchSlug)
+  const normalizedSearchSlug = normalizeSlug(slug)
+  const category = categories.find(c => c.slug === slug || normalizeSlug(c.slug) === normalizedSearchSlug)
 
   if (!category) return { title: 'Catégorie introuvable' }
 
@@ -29,12 +36,11 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const slug = decodeURIComponent((await params).slug)
+  const slug = (await params).slug
   const categories = await getCategories()
   
-  const normalizedSearchSlug = slug.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '')
-  const category = categories.find(c => c.slug === slug) 
-    || categories.find(c => c.slug.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedSearchSlug)
+  const normalizedSearchSlug = normalizeSlug(slug)
+  const category = categories.find(c => c.slug === slug || normalizeSlug(c.slug) === normalizedSearchSlug)
 
   if (!category) {
     notFound()
