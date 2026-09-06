@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { DeleteCategoryButton } from '@/components/admin/delete-category-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,13 +65,17 @@ export default async function CategoriesPage() {
                       {category._count.products}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link 
-                        href={`/admin/categories/${category.id}`}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Modifier</span>
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <Link 
+                          href={`/admin/categories/${category.id}`}
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+                          title="Modifier"
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Modifier</span>
+                        </Link>
+                        <DeleteCategoryButton id={category.id} />
+                      </div>
                     </td>
                   </tr>
                 ))}
