@@ -14,11 +14,28 @@ interface AddToCartFormProps {
 export function AddToCartForm({ product }: AddToCartFormProps) {
   const { addItem } = useCart()
   const [quantity, setQuantity] = useState(1)
+  
+  // existing variants (if any)
   const [variant, setVariant] = useState<string | undefined>(
     product.variants?.options[0]
   )
+  
+  // colors and sizes
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(
+    product.colors?.[0]
+  )
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product.sizes?.[0]
+  )
 
   const handleAdd = () => {
+    // Combine selected options into the variant string
+    const parts = []
+    if (variant) parts.push(variant)
+    if (selectedColor) parts.push(`Couleur: ${selectedColor}`)
+    if (selectedSize) parts.push(`Taille: ${selectedSize}`)
+    const combinedVariant = parts.length > 0 ? parts.join(' | ') : undefined
+
     addItem(
       {
         id: product.id,
@@ -26,7 +43,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
         name: product.name,
         price: product.price,
         image: product.images[0] || '/placeholder.svg',
-        variant,
+        variant: combinedVariant,
       },
       quantity
     )
@@ -53,6 +70,50 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
                 className="h-10 px-4"
               >
                 {opt}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Selectors for Colors and Sizes */}
+      {product.colors && product.colors.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-medium">Couleur</label>
+          <div className="flex flex-wrap gap-3">
+            {product.colors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setSelectedColor(color)}
+                className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${
+                  selectedColor === color ? 'border-primary scale-110' : 'border-transparent hover:scale-105'
+                }`}
+                title={color}
+              >
+                <span
+                  className="h-full w-full rounded-full border border-black/10 shadow-sm"
+                  style={{ backgroundColor: color }}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {product.sizes && product.sizes.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-medium">Taille</label>
+          <div className="flex flex-wrap gap-2">
+            {product.sizes.map((size) => (
+              <Button
+                key={size}
+                type="button"
+                variant={selectedSize === size ? 'default' : 'outline'}
+                onClick={() => setSelectedSize(size)}
+                className="h-10 min-w-[3rem] px-4"
+              >
+                {size}
               </Button>
             ))}
           </div>
