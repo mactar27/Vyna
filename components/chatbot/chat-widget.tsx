@@ -123,7 +123,7 @@ export function ChatWidget() {
           className="flex items-center gap-2"
         >
           <Input
-            value={input}
+            value={input || ''}
             onChange={handleInputChange}
             placeholder="Écrivez votre message..."
             className="flex-1 rounded-full bg-secondary/50 border-transparent focus-visible:ring-primary/20"
@@ -131,7 +131,7 @@ export function ChatWidget() {
           <Button 
             type="submit" 
             size="icon" 
-            disabled={!input.trim() || isLoading}
+            disabled={!input?.trim() || isLoading}
             className="rounded-full h-10 w-10 shrink-0 shadow-md"
           >
             <Send className="h-4 w-4" />
