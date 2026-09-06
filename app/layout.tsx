@@ -5,6 +5,7 @@ import { CartProvider } from '@/lib/cart-context'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { Toaster } from '@/components/ui/sonner'
+import { ChatWidget } from '@/components/chatbot/chat-widget'
 import './globals.css'
 
 const inter = Inter({
@@ -44,6 +45,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="min-h-screen">{children}</main>
           <SiteFooter />
+          <ChatWidget />
         </CartProvider>
         <Toaster position="top-center" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
