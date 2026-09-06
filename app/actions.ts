@@ -260,7 +260,7 @@ export async function createOrder(data: any) {
     })
 
     if (process.env.RESEND_API_KEY) {
-      await resend.emails.send({
+      const { data: resendData, error: resendError } = await resend.emails.send({
         from: 'Vyna Boutique <contact@vyynaa.com>',
         to: 'Attoufanemaiga60@gmail.com', // To the admin
         subject: `Nouvelle commande ! - ${order.firstName} ${order.lastName}`,
@@ -276,6 +276,13 @@ export async function createOrder(data: any) {
           <p>Connectez-vous à l'administration pour voir les détails de la commande.</p>
         `
       })
+      
+      if (resendError) {
+        console.error('Erreur d\'envoi Resend:', resendError)
+        // We do not throw so the order is still saved, but we log it.
+      }
+    } else {
+      console.warn("ATTENTION: RESEND_API_KEY est introuvable. L'e-mail n'a pas été envoyé.")
     }
 
     revalidatePath('/admin/commandes')
