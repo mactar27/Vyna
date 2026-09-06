@@ -41,7 +41,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
       name: newName,
       // Only auto-update slug if we are creating new (no initialData)
       ...(!initialData && {
-        slug: newName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+        slug: newName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
       })
     }))
   }
