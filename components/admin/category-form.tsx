@@ -16,7 +16,7 @@ interface CategoryFormProps {
     id: string
     name: string
     slug: string
-    description: string | null
+    tagline: string | null
     image: string | null
   }
 }
@@ -29,7 +29,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
-    description: initialData?.description || '',
+    tagline: initialData?.tagline || '',
     image: initialData?.image || ''
   })
 
@@ -110,11 +110,11 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Slogan / Description courte</Label>
+          <Label htmlFor="tagline">Slogan / Description courte</Label>
           <Textarea 
-            id="description" 
-            value={formData.description || ''}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            id="tagline" 
+            value={formData.tagline || ''}
+            onChange={(e) => setFormData({...formData, tagline: e.target.value})}
             className="h-20"
           />
         </div>
