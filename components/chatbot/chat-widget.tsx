@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils'
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const [localInput, setLocalInput] = useState('')
+  const { messages, append, isLoading } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
@@ -119,19 +120,24 @@ export function ChatWidget() {
       {/* Input */}
       <div className="border-t bg-background p-4">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (!localInput.trim() || isLoading) return
+            append({ role: 'user', content: localInput })
+            setLocalInput('')
+          }}
           className="flex items-center gap-2"
         >
           <Input
-            value={input || ''}
-            onChange={handleInputChange}
+            value={localInput}
+            onChange={(e) => setLocalInput(e.target.value)}
             placeholder="Écrivez votre message..."
             className="flex-1 rounded-full bg-secondary/50 border-transparent focus-visible:ring-primary/20"
           />
           <Button 
             type="submit" 
             size="icon" 
-            disabled={!input?.trim() || isLoading}
+            disabled={!localInput.trim() || isLoading}
             className="rounded-full h-10 w-10 shrink-0 shadow-md"
           >
             <Send className="h-4 w-4" />
