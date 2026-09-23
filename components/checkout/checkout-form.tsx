@@ -37,6 +37,7 @@ export function CheckoutForm() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedCountry, setSelectedCountry] = useState('')
+  const [openCountry, setOpenCountry] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<string>('')
   const { subtotal, items, clear } = useCart()
@@ -126,7 +127,7 @@ export function CheckoutForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="country">Pays</Label>
-                  <Popover>
+                  <Popover open={openCountry} onOpenChange={setOpenCountry}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -154,6 +155,7 @@ export function CheckoutForm() {
                                 value={country.name}
                                 onSelect={() => {
                                   setSelectedCountry(country.code)
+                                  setOpenCountry(false)
                                 }}
                               >
                                 <Check
