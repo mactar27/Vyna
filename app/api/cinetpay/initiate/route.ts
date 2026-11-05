@@ -1,69 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-// CinetPay Checkout API - initie un paiement et retourne l'URL de paiement
+// Flutterwave checkout API - initie un paiement et retourne le lien de paiement
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { orderId, amount, currency = 'XOF', customerName, customerEmail, customerPhone } = body
+    const { orderId, amount, currency = 'XAF', customerName, customerEmail, customerPhone } = body
 
-    const apiKey = process.env.CINETPAY_API_KEY
-    const siteId = process.env.CINETPAY_SITE_ID
+    const secretKey = process.env.FLUTTERWAVE_SECRET_KEY
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-    if (!apiKey || !siteId || apiKey === 'VOTRE_API_KEY_CINETPAY') {
+    if (!secretKey || secretKey === 'VOTRE_SECRET_KEY_FLUTTERWAVE') {
       return NextResponse.json(
-        { error: 'CinetPay non configuré. Veuillez ajouter CINETPAY_API_KEY et CINETPAY_SITE_ID dans .env' },
+        { error: 'Flutterwave non configuré. Ajoutez FLUTTERWAVE_SECRET_KEY dans .env.' },
         { status: 503 }
       )
     }
 
-    // Générer un identifiant de transaction unique basé sur l'orderId
-    const transactionId = `VYNA_${orderId}_${Date.now()}`
+    const txRef = `VYNA_${orderId}_${Date.now()}`
+    const normalizedCurrency = currency === 'XOF' ? 'XAF' : currency
+    const normalizedPhone = String(customerPhone || '').replace(/\s+/g, '').replace(/^\+/, '')
 
-    // Appel API CinetPay pour initier le paiement
-    const cinetpayRes = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
+    const flutterwaveRes = await fetch('https://api.flutterwave.com/v3/payments', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
       body: JSON.stringify({
-        apikey: apiKey,
-        site_id: siteId,
-        transaction_id: transactionId,
-        amount: amount,
-        currency: currency,
-        description: `Commande Vyna #${orderId}`,
-        notify_url: `${appUrl}/api/cinetpay/notify`,
-        return_url: `${appUrl}/commande/succes?order=${orderId}`,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone_number: customerPhone,
-        channels: 'ALL', // Wave, Orange Money, MTN MoMo, carte, etc.
-        lang: 'fr',
+        tx_ref: txRef,
+        amount: Number(amount),
+        currency: normalizedCurrency,
+        redirect_url: `${appUrl}/commande/succes?order=${orderId}`,
+        payment_options: 'card,account,ussd,qr,barter,mobilemoneyghana,mobilemoneyuganda,mobilemoneyrwanda,mobilemoneytanzania,mobilemoneyzambia,mobilemoneyfranco,mobilemoneykenya,mobilemoneyug,mobilemoneycameroon,mobilemoney',
+        customer: {
+          email: customerEmail,
+          phonenumber: normalizedPhone,
+          name: customerName,
+        },
+        customizations: {
+          title: 'Vyna Boutique',
+          description: `Commande Vyna #${orderId}`,
+          logo: `${appUrl}/apple-icon.png`,
+        },
       }),
     })
 
-    const data = await cinetpayRes.json()
+    const data = await flutterwaveRes.json()
 
-    if (data.code !== '201') {
-      console.error('CinetPay error:', data)
+    if (!flutterwaveRes.ok || data?.status !== 'success') {
+      console.error('Flutterwave error:', data)
       return NextResponse.json(
-        { error: data.message || 'Erreur lors de l\'initialisation du paiement.' },
+        { error: data?.message || 'Erreur lors de l\'initialisation du paiement.' },
         { status: 400 }
       )
     }
 
-    // Sauvegarder le transactionId dans la commande pour retrouver l'ordre lors du webhook
     await prisma.order.update({
       where: { id: orderId },
-      data: { paymentTransactionId: transactionId },
+      data: { paymentTransactionId: txRef },
     })
 
     return NextResponse.json({
-      payment_url: data.data.payment_url,
-      payment_token: data.data.payment_token,
+      payment_url: data.data?.link,
+      payment_token: txRef,
     })
   } catch (err) {
-    console.error('CinetPay initiate error:', err)
+    console.error('Flutterwave initiate error:', err)
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
   }
 }

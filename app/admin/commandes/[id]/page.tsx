@@ -70,7 +70,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               <div className="flex flex-col gap-4">
                 {order.items.map((item) => {
                   // Utiliser l'image choisie enregistrée, sinon la première image du produit
-                  const imageUrl = item.image || (item.product.images.length > 0 ? item.product.images[0].url : '/images/placeholder.jpg')
+                  const imageUrl = item.image || (item.product && item.product.images.length > 0 ? item.product.images[0].url : '/images/placeholder.jpg')
                   
                   return (
                     <div key={item.id} className="flex gap-4">

@@ -40,7 +40,22 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string
+    slug: string
+    categoryId: string
+    price: number
+    oldPrice: string | number
+    isNew: boolean
+    inStock: boolean
+    stock: number
+    shortDescription: string
+    description: string
+    images: string[]
+    informations: string[]
+    sizes: string[]
+    colors: string[]
+  }>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
     categoryId: initialData?.categoryId || (categories.length > 0 ? categories[0].id : ''),
@@ -53,8 +68,8 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
     description: initialData?.description || '',
     images: initialData?.images.map(i => i.url) || [],
     informations: initialData?.informations.map(i => i.value) || [''],
-    sizes: initialData?.sizes ? JSON.parse(initialData.sizes) : [],
-    colors: initialData?.colors ? JSON.parse(initialData.colors) : []
+    sizes: initialData?.sizes ? JSON.parse(initialData.sizes) as string[] : [],
+    colors: initialData?.colors ? JSON.parse(initialData.colors) as string[] : []
   })
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +165,7 @@ export function ProductForm({ categories, initialData }: ProductFormProps) {
             
             <div className="space-y-2">
               <Label>Catégorie *</Label>
-              <Select value={formData.categoryId} onValueChange={(v) => setFormData({...formData, categoryId: v})}>
+              <Select value={formData.categoryId || ''} onValueChange={(v) => setFormData({...formData, categoryId: v || ''})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une catégorie">
                     {categories.find(c => c.id === formData.categoryId)?.name || 'Sélectionner une catégorie'}

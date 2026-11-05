@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google'
-import { streamText, tool } from 'ai'
+import { convertToModelMessages, createUIMessageStreamResponse, streamText, toUIMessageStream, tool, isStepCount, type UIMessage } from 'ai'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
 
@@ -26,17 +26,17 @@ RÈGLES IMPORTANTES:
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages }: { messages: UIMessage[] } = await req.json()
 
     const result = streamText({
       model: google('gemini-1.5-flash'),
       system: SYSTEM_PROMPT,
-      messages,
-      maxSteps: 3,
+      messages: await convertToModelMessages(messages),
+      stopWhen: isStepCount(3),
       tools: {
         search_products: tool({
           description: "Recherche un produit dans le catalogue de la boutique Vyna par mot-clé (ex: 'savon', 'bracelet', 'lunettes'). Retourne les produits trouvés avec leur prix en FCFA et leur description courte.",
-          parameters: z.object({
+          inputSchema: z.object({
             query: z.string().describe("Le mot clé à rechercher (ex: 'jogging', 'savon noir')"),
           }),
           execute: async ({ query }) => {
@@ -44,8 +44,8 @@ export async function POST(req: Request) {
               where: {
                 OR: [
                   { name: { contains: query } },
-                  { category: { contains: query } },
-                  { shortDescription: { contains: query } }
+                  { shortDescription: { contains: query } },
+                  { category: { is: { name: { contains: query } } } }
                 ]
               },
               take: 5,
@@ -53,31 +53,33 @@ export async function POST(req: Request) {
                 name: true,
                 price: true,
                 shortDescription: true,
-                inStock: true
-              }
-            });
-            
+                inStock: true,
+              },
+            })
+
             if (products.length === 0) {
-              return { success: false, message: "Aucun produit trouvé pour cette recherche." };
+              return { success: false, message: 'Aucun produit trouvé pour cette recherche.' }
             }
-            
+
             return {
               success: true,
-              products: products.map(p => ({
+              products: products.map((p) => ({
                 nom: p.name,
                 prix: `${p.price} FCFA`,
                 description: p.shortDescription,
-                en_stock: p.inStock ? 'Oui' : 'Non'
-              }))
-            };
+                en_stock: p.inStock ? 'Oui' : 'Non',
+              })),
+            }
           },
         }),
-      }
+      },
     })
 
-    return result.toTextStreamResponse()
+    return createUIMessageStreamResponse({
+      stream: toUIMessageStream({ stream: result.stream }),
+    })
   } catch (error) {
-    console.error("Erreur API Chat:", error)
-    return new Response(JSON.stringify({ error: "Une erreur est survenue." }), { status: 500 })
+    console.error('Erreur API Chat:', error)
+    return new Response(JSON.stringify({ error: 'Une erreur est survenue.' }), { status: 500 })
   }
 }

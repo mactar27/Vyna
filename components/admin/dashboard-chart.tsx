@@ -41,7 +41,7 @@ export function DashboardChart({ data }: DashboardChartProps) {
           <Tooltip 
             contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             labelStyle={{ fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}
-            formatter={(value: number) => [`${value}€`, 'Ventes']}
+            formatter={(value) => [`${Number(value ?? 0)}€`, 'Ventes']}
           />
           <Line 
             type="monotone" 

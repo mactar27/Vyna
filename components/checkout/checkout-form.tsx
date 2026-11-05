@@ -128,7 +128,7 @@ export function CheckoutForm() {
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="country">Pays</Label>
                   <Popover open={openCountry} onOpenChange={setOpenCountry}>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger>
                       <Button
                         variant="outline"
                         role="combobox"
@@ -245,6 +245,14 @@ export function CheckoutForm() {
                     color: 'bg-orange-50 border-orange-200',
                     activeColor: 'bg-orange-100 border-orange-500',
                   },
+                  {
+                    id: 'CARD',
+                    label: 'Carte bancaire',
+                    description: 'Paiement sécurisé par carte via Flutterwave',
+                    emoji: '💳',
+                    color: 'bg-emerald-50 border-emerald-200',
+                    activeColor: 'bg-emerald-100 border-emerald-500',
+                  },
                 ].map((method) => (
                   <button
                     key={method.id}
@@ -292,6 +300,15 @@ export function CheckoutForm() {
                 </div>
               )}
 
+              {paymentMethod === 'CARD' && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                  <p className="font-semibold mb-1">💳 Paiement sécurisé</p>
+                  <p>
+                    Vous serez redirigé vers la plateforme de paiement Flutterwave pour finaliser votre commande avec votre carte bancaire.
+                  </p>
+                </div>
+              )}
+
               <div className="mt-4 flex gap-4">
                 <Button variant="outline" onClick={() => setCurrentStep(2)} disabled={isSubmitting}>Retour</Button>
                 <Button
@@ -301,8 +318,9 @@ export function CheckoutForm() {
                     setIsSubmitting(true)
 
                     const countryName = COUNTRIES.find(c => c.code === selectedCountry)?.name || selectedCountry
+                    const normalizedPhone = formData.phone.replace(/\s+/g, '')
+                    const countryPrefix = COUNTRIES.find(c => c.code === selectedCountry)?.prefix || ''
 
-                    // 1. Créer la commande en base
                     const orderResult = await createOrder({
                       ...formData,
                       country: countryName,
@@ -311,14 +329,41 @@ export function CheckoutForm() {
                       paymentMethod,
                     })
 
-                    setIsSubmitting(false)
-
                     if (orderResult.error) {
+                      setIsSubmitting(false)
                       toast.error(orderResult.error)
                       return
                     }
 
-                    // 2. Redirection (Paiement manuel direct)
+                    if (paymentMethod === 'CARD') {
+                      const paymentResponse = await fetch('/api/cinetpay/initiate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          orderId: orderResult.orderId,
+                          amount: subtotal,
+                          currency: 'XOF',
+                          customerName: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
+                          customerEmail: formData.email,
+                          customerPhone: selectedCountry ? `${countryPrefix}${normalizedPhone}` : normalizedPhone,
+                        }),
+                      })
+
+                      const paymentData = await paymentResponse.json()
+                      setIsSubmitting(false)
+
+                      if (!paymentResponse.ok || paymentData.error) {
+                        toast.error(paymentData.error || 'Le paiement Flutterwave n’a pas pu être initialisé.')
+                        return
+                      }
+
+                      clear()
+                      toast.success('Paiement en cours de traitement...')
+                      window.location.href = paymentData.payment_url
+                      return
+                    }
+
+                    setIsSubmitting(false)
                     clear()
                     toast.success('Commande confirmée avec succès ! Nous la traiterons très vite.')
                     router.push('/')

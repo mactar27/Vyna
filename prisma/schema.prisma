@@ -154,6 +154,7 @@ enum OrderStatus {
 enum PaymentMethod {
   WAVE
   ORANGE_MONEY
+  CARD
   COD
 }
 

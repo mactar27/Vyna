@@ -355,6 +355,7 @@ export async function createOrder(data: any) {
     const paymentLabels: Record<string, string> = {
       WAVE: '📲 Wave',
       ORANGE_MONEY: '🔶 Orange Money',
+      CARD: '💳 Carte bancaire',
       COD: '💵 Paiement à la livraison',
     }
     const paymentLabel = paymentLabels[paymentMethod] || paymentMethod

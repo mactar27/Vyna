@@ -192,30 +192,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <TabsContent value="avis" className="pt-6">
               <div className="grid gap-12 md:grid-cols-2">
                 <div>
-                  <h3 className="font-serif text-xl font-medium mb-6">Avis clients ({product.reviews.filter(r => r.status === 'PUBLISHED').length})</h3>
-                  {product.reviews.filter(r => r.status === 'PUBLISHED').length > 0 ? (
-                    <div className="flex flex-col gap-6">
-                      {product.reviews.filter(r => r.status === 'PUBLISHED').map((review, idx) => (
-                        <div key={idx} className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">{review.author}</span>
-                            <span className="text-sm text-muted-foreground">— {new Date(review.date).toLocaleDateString('fr-FR')}</span>
-                          </div>
-                          <div className="flex items-center gap-0.5 text-amber-500">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${i < review.rating ? 'fill-current' : 'fill-muted text-muted-foreground'}`}
-                              />
+                  {(() => {
+                    const publishedReviews = (product.reviews as Array<{ status?: string; author: string; rating: number; date: string; text: string }>).filter((r) => r.status === 'PUBLISHED')
+                    return (
+                      <>
+                        <h3 className="font-serif text-xl font-medium mb-6">Avis clients ({publishedReviews.length})</h3>
+                        {publishedReviews.length > 0 ? (
+                          <div className="flex flex-col gap-6">
+                            {publishedReviews.map((review, idx) => (
+                              <div key={idx} className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground">{review.author}</span>
+                                  <span className="text-sm text-muted-foreground">— {new Date(review.date).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                                <div className="flex items-center gap-0.5 text-amber-500">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-3 w-3 ${i < review.rating ? 'fill-current' : 'fill-muted text-muted-foreground'}`}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="text-muted-foreground">{review.text}</p>
+                              </div>
                             ))}
                           </div>
-                          <p className="text-muted-foreground">{review.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
-                  )}
+                        ) : (
+                          <p className="text-muted-foreground">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
                 <div>
                   <ReviewForm productId={product.id} />

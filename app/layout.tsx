@@ -6,7 +6,7 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { Toaster } from '@/components/ui/sonner'
 import { ChatWidget } from '@/components/chatbot/chat-widget'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import './globals.css'
 
 const inter = Inter({
@@ -40,7 +40,9 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const headersList = await headers()
-  const isComingSoon = headersList.get('x-coming-soon') === 'true'
+  const cookieStore = await cookies()
+  const isAdmin = cookieStore.get('admin_auth')?.value === 'faivyyy23'
+  const isComingSoon = !isAdmin && (headersList.get('x-coming-soon') === 'true' || process.env.NEXT_PUBLIC_COMING_SOON !== 'false')
 
   return (
     <html lang="fr" className={`${inter.variable} ${cormorant.variable} bg-background`}>
