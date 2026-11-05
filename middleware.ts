@@ -15,12 +15,22 @@ export function middleware(req: NextRequest) {
   }
 
   // Coming soon feature (only for non-admin visitors)
-  if (process.env.NEXT_PUBLIC_COMING_SOON === 'true') {
-    if (!isAdmin && !pathname.startsWith('/admin') && pathname !== '/coming-soon') {
+  // Masque le site pour tout le public (actif par défaut sauf si NEXT_PUBLIC_COMING_SOON="false")
+  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON !== 'false'
+  if (isComingSoon) {
+    if (!isAdmin && !pathname.startsWith('/admin')) {
       const requestHeaders = new Headers(req.headers)
       requestHeaders.set('x-coming-soon', 'true')
       
-      return NextResponse.rewrite(new URL('/coming-soon', req.url), {
+      if (pathname !== '/coming-soon') {
+        return NextResponse.rewrite(new URL('/coming-soon', req.url), {
+          request: {
+            headers: requestHeaders,
+          },
+        })
+      }
+
+      return NextResponse.next({
         request: {
           headers: requestHeaders,
         },
