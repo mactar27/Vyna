@@ -39,10 +39,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const headersList = await headers()
   const cookieStore = await cookies()
   const isAdmin = cookieStore.get('admin_auth')?.value === 'faivyyy23'
-  const isComingSoon = !isAdmin && (headersList.get('x-coming-soon') === 'true' || process.env.NEXT_PUBLIC_COMING_SOON !== 'false')
+  const isComingSoon = !isAdmin
 
   return (
     <html lang="fr" className={`${inter.variable} ${cormorant.variable} bg-background`}>

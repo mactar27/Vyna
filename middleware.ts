@@ -15,8 +15,8 @@ export function middleware(req: NextRequest) {
   }
 
   // Coming soon feature (only for non-admin visitors)
-  // Masque le site pour tout le public (actif par défaut sauf si NEXT_PUBLIC_COMING_SOON="false")
-  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON !== 'false'
+  // Force le masquage du site pour tout le public
+  const isComingSoon = true
   if (isComingSoon) {
     if (!isAdmin && !pathname.startsWith('/admin')) {
       const requestHeaders = new Headers(req.headers)
