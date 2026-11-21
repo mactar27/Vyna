@@ -6,7 +6,7 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { Toaster } from '@/components/ui/sonner'
 import { ChatWidget } from '@/components/chatbot/chat-widget'
-import { headers, cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import './globals.css'
 
 const inter = Inter({
@@ -39,9 +39,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const isAdmin = cookieStore.get('admin_auth')?.value === 'faivyyy23'
-  const isComingSoon = !isAdmin
+  const headersList = await headers()
+  const isComingSoon = headersList.get('x-coming-soon') === 'true'
 
   return (
     <html lang="fr" className={`${inter.variable} ${cormorant.variable} bg-background`}>
